@@ -1,3 +1,4 @@
+from asyncore import read
 import kivy
 
 from kivy.app import App
@@ -16,6 +17,13 @@ class MyProject(App):
     def build(self):
         self.window = GridLayout()
         self.window.cols = 1
+
+        self.codes_src = open("codes.txt")
+        self.codes_read = self.codes_src.read()
+        self.codes_split = self.codes_read.split("[]")
+        self.codes = []
+        for items in self.codes_split:
+            self.codes.append(items)
 
         self.convert_button = Button(text="Convert", size_hint_y=None, height=40)
         # self.convert_button.bind(on_press=self.callback)
@@ -43,5 +51,9 @@ class MyProject(App):
         return self.window
 
 
+app = MyProject()
+
 if __name__ == "__main__":
-    MyProject().run()
+    app.run()
+
+print(app.codes)
