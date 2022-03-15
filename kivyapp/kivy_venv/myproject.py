@@ -1,13 +1,19 @@
-from turtle import onrelease
+from tkinter import DISABLED
 import kivy
+from kivy.config import Config
+
+Config.set("graphics", "resizable", False)
+from turtle import onrelease
 from kivy.app import App
+from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
+from kivy.animation import Animation
 from kivy.base import runTouchApp
-from kivy.uix.textinput import TextInput
+
 import requests as req
 from functools import partial
 
@@ -68,10 +74,10 @@ class MyProject(App):
         )
         self.window.add_widget(self.dropdown2)
 
-        self.textinput1 = TextInput(size_hint=(0.2, 0.1), pos=(55, 400), font_size=30)
+        self.textinput1 = TextInput(size_hint=(0.37, 0.1), pos=(10, 400), font_size=30)
         self.window.add_widget(self.textinput1)
 
-        self.textinput2 = TextInput(size_hint=(0.2, 0.1), pos=(580, 400), font_size=30)
+        self.textinput2 = TextInput(size_hint=(0.37, 0.1), pos=(482, 400), font_size=30)
         self.window.add_widget(self.textinput2)
 
         return self.window
@@ -81,18 +87,48 @@ app = MyProject()
 
 
 def conversion(self):
-    if app.textinput1.text == "":
-        new_amount = ""
-    elif app.dropdown1.text == app.dropdown2.text:
-        new_amount = app.textinput1.text
-    elif app.dropdown1.text == "USD, United States Dollar":
-        new_amount = int(app.textinput1.text) / app.rates[app.dropdown2.text[0:3]]
-    else:
-        to_usd = int(app.textinput1.text) / app.rates[app.dropdown1.text[0:3]]
-        new_amount = to_usd / app.rates[app.dropdown2.text[0:3]]
+    def string():
+        if (
+            app.textinput1.text == ""
+            and app.dropdown1.text == "From Currency"
+            and app.dropdown2.text == "To Currency"
+        ):
+            new_amount = "Choose currencies and enter initial amount!"
+        elif app.textinput1.text == "" and app.dropdown1.text == "From Currency":
+            new_amount = "Choose first currency and enter initial amount!"
+        elif app.textinput1.text == "" and app.dropdown2.text == "To Currency":
+            new_amount = "Choose second currency and enter initial amount!"
+        elif app.textinput1.text == "":
+            new_amount = "Enter initial amount!"
+        elif (
+            app.dropdown1.text == "From Currency"
+            and app.dropdown2.text == "To Currency"
+        ):
+            new_amount = "Choose currencies!"
+        elif app.dropdown1.text == "From Currency":
+            new_amount = "Choose first currency!"
+        elif app.dropdown2.text == "To Currency":
+            new_amount = "Choose second currency!"
+        elif app.dropdown1.text == app.dropdown2.text:
+            new_amount = "Currencies are the same!"
 
-    app.textinput2.text = ""
-    app.textinput2.insert_text(str(new_amount))
+        app.textinput2.text = ""
+        app.textinput2.insert_text(new_amount)
+
+    def integer():
+        if app.dropdown1.text == "USD, United States Dollar":
+            new_amount = int(app.textinput1.text) / app.rates[app.dropdown2.text[0:3]]
+        else:
+            to_usd = int(app.textinput1.text) / app.rates[app.dropdown1.text[0:3]]
+            new_amount = to_usd / app.rates[app.dropdown2.text[0:3]]
+
+        app.textinput2.text = ""
+        app.textinput2.insert_text(round(new_amount, 2))
+
+    if type(app.textinput2.text) == str:
+        string()
+    else:
+        integer()
 
 
 if __name__ == "__main__":
