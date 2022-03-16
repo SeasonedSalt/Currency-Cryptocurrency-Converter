@@ -87,50 +87,40 @@ app = MyProject()
 
 
 def conversion(self):
-    def string():
-        if (
-            app.textinput1.text == ""
-            and app.dropdown1.text == "From Currency"
-            and app.dropdown2.text == "To Currency"
+    if (
+        app.textinput1.text == ""
+        and app.dropdown1.text == "From Currency"
+        and app.dropdown2.text == "To Currency"
         ):
-            new_amount = "Choose currencies and enter initial amount!"
-        elif app.textinput1.text == "" and app.dropdown1.text == "From Currency":
-            new_amount = "Choose first currency and enter initial amount!"
-        elif app.textinput1.text == "" and app.dropdown2.text == "To Currency":
-            new_amount = "Choose second currency and enter initial amount!"
-        elif app.textinput1.text == "":
-            new_amount = "Enter initial amount!"
-        elif (
-            app.dropdown1.text == "From Currency"
-            and app.dropdown2.text == "To Currency"
+        new_amount = "Choose currencies and enter initial amount!"
+    elif app.textinput1.text == "" and app.dropdown1.text == "From Currency":
+        new_amount = "Choose first currency and enter initial amount!"
+    elif app.textinput1.text == "" and app.dropdown2.text == "To Currency":
+        new_amount = "Choose second currency and enter initial amount!"
+    elif app.textinput1.text == "":
+        new_amount = "Enter initial amount!"
+    elif (
+        app.dropdown1.text == "From Currency"
+        and app.dropdown2.text == "To Currency"
         ):
-            new_amount = "Choose currencies!"
-        elif app.dropdown1.text == "From Currency":
-            new_amount = "Choose first currency!"
-        elif app.dropdown2.text == "To Currency":
-            new_amount = "Choose second currency!"
-        elif app.dropdown1.text == app.dropdown2.text:
-            new_amount = "Currencies are the same!"
-
-        app.textinput2.text = ""
-        app.textinput2.insert_text(new_amount)
-
-    def integer():
-        if app.dropdown1.text == "USD, United States Dollar":
-            new_amount = int(app.textinput1.text) / app.rates[app.dropdown2.text[0:3]]
-        else:
-            to_usd = int(app.textinput1.text) / app.rates[app.dropdown1.text[0:3]]
-            new_amount = to_usd / app.rates[app.dropdown2.text[0:3]]
-
-        app.textinput2.text = ""
-        app.textinput2.insert_text(round(new_amount, 2))
-
-    if type(app.textinput2.text) == str:
-        string()
+        new_amount = "Choose currencies!"
+    elif app.dropdown1.text == "From Currency":
+        new_amount = "Choose first currency!"
+    elif app.dropdown2.text == "To Currency":
+        new_amount = "Choose second currency!"
+    elif app.dropdown1.text == app.dropdown2.text:
+        new_amount = "Currencies are the same!"
+    elif app.dropdown1.text == "USD, United States Dollar":
+        mid_conversion = int(app.textinput1.text) / app.rates[app.dropdown2.text[0:3]]
+        new_amount = round(mid_conversion, 2)
     else:
-        integer()
+        to_usd = int(app.textinput1.text) / app.rates[app.dropdown1.text[0:3]]
+        mid_conversion = to_usd / app.rates[app.dropdown2.text[0:3]]
+        new_amount = round(mid_conversion, 2)
 
-
+    app.textinput2.text = ""
+    app.textinput2.insert_text(str(new_amount))
+    
 if __name__ == "__main__":
     app.run()
 
