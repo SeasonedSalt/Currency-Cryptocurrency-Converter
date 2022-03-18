@@ -17,9 +17,11 @@ from kivy.animation import Animation
 from kivy.base import runTouchApp
 from kivy.garden.mapview import MapView
 from kivy.app import App
-
+import numpy as np
 import requests as req
 from functools import partial
+from countryinfo import CountryInfo
+
 
 api_key = "8ab594a86b3faea921595e6f"
 
@@ -111,7 +113,11 @@ class TrustyConverto(App):
         self.window.add_widget(self.text_input_button)
 
         self.mapview = MapView(
-            zoom=2, lat=50.6394, lon=3.057, size_hint=(0.95, 0.55), pos=(20, 10)
+            zoom=2,
+            lat=50.6394,
+            lon=3.057,
+            size_hint=(0.95, 0.55),
+            pos=(20, 10),
         )
         self.window.add_widget(self.mapview)
 
