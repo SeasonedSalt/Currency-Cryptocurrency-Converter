@@ -15,12 +15,11 @@ from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
 from kivy.animation import Animation
 from kivy.base import runTouchApp
-from kivy.garden.mapview import MapView
+from kivy_garden.mapview import MapView, MapSource, MapMarker
 from kivy.app import App
 import numpy as np
 import requests as req
 from functools import partial
-from countryinfo import CountryInfo
 
 
 api_key = "8ab594a86b3faea921595e6f"
@@ -36,6 +35,30 @@ data_url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/USD"
 data_object = req.get(data_url)
 data_json = data_object.json()
 current_data = data_json["conversion_rates"]
+
+# CLEAN UP AND ORGANIZE DATA FOR MAPPING
+# COORDINATES
+with open("world_country_and_usa_states_latitude_and_longitude_values.csv", "r") as fid:
+    lines = fid.readlines()
+del lines[0]
+lines = [item[3:-4] for item in lines]
+lines = [item.split(",") for item in lines]
+lines = [item[0:3] for item in lines]
+coordinates = lines
+
+# CURRENCY CODES
+with open("codes.csv", "r") as fid:
+    lines = fid.readlines()
+lines = [item.split(",") for item in lines]
+lines1 = []
+[lines1.append([item[:][0]] + [item[:][-1][0:3]]) for item in lines]
+codes_lst = lines1
+
+# MERGING
+codes_dict = dict(codes_lst)
+combined = [ [*v, k, codes_dict.get(k) ] for [*v, k] in coordinates if k in codes_dict ]
+
+print(combined)
 
 
 class TrustyConverto(App):
@@ -114,11 +137,16 @@ class TrustyConverto(App):
 
         self.mapview = MapView(
             zoom=2,
-            lat=50.6394,
-            lon=3.057,
             size_hint=(0.95, 0.55),
-            pos=(20, 10),
+            pos=(20, 10)
         )
+        self.mapview.map_source = "osm"
+        self.marker1 = MapMarker(source="red_dot.png")
+        #
+        self.marker2 = MapMarker(source="blue_dot.png")
+        #
+        self.mapview.add_marker(self.marker1)
+        self.mapview.add_marker(self.marker2)
         self.window.add_widget(self.mapview)
 
         return self.window

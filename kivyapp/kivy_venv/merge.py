@@ -1,5 +1,4 @@
-coordinates = (
-    ["42.546245", "1.601554", "Andorra"],
+coordinates = [["42.546245", "1.601554", "Andorra"],
     ["23.424076", "53.847818", "United Arab Emirates"],
     ["33.93911", "67.709953", "Afghanistan"],
     ["17.060816", "-61.796428", "Antigua and Barbuda"],
@@ -33,9 +32,7 @@ coordinates = (
     ["-54.423199", "3.413194", "Bouvet Island"],
     ["-22.328474", "24.684866", "Botswana"],
     ["53.709807", "27.953389", "Belarus"],
-    ["17.189877", "-88.49765", "Belize"],
-)
-["56.130366", "-106.346771", "Canada"], [
+    ["17.189877", "-88.49765", "Belize"], ["56.130366", "-106.346771", "Canada"], [
     "-12.164165",
     "96.870956",
     "Cocos [Keeling] Islands",
@@ -855,10 +852,9 @@ coordinates = (
 ], [
     "-19.015438",
     "29.154857",
-    "Zimbabwe",
-]
+    "ZW",]]
 
-codes = (
+codes = [
     ["New Zealand, NZD"],
     ["Cook Islands, NZD"],
     ["Niue, NZD"],
@@ -1027,9 +1023,7 @@ codes = (
     ["Macau, MOP"],
     ["Macedonia, MKD"],
     ["Madagascar, MGA"],
-    ["Malawi, MWK"],
-)
-["Malaysia, MYR"], ["Maldives, MVR"], ["Malta, MTL"], ["Mauritania, MRO"], [
+    ["Malawi, MWK"], ["Malaysia, MYR"], ["Maldives, MVR"], ["Malta, MTL"], ["Mauritania, MRO"], [
     "Mauritius, MUR"
 ], ["Mexico, MXN"], ["Moldova Republic of, MDL"], ["Mongolia, MNT"], ["Morocco, MAD"], [
     "Western Sahara, MAD"
@@ -1139,13 +1133,11 @@ codes = (
     "Zambia, ZMK"
 ], [
     "Zimbabwe, ZW"
-]
+]]
 
-leftovers = []
-for item in codes:
-    for thing in coordinates:
-        if item[0:-3] == thing[2]:
-            thing.append(item[-3:])
-        else:
-            leftovers.append(item[-3:])
-print(leftovers)
+common_elements = list(set(codes).intersection(set(coordinates)))
+combined = codes + coordinates
+for item in common_elements:
+    combined = [element for element in combined if element != item]
+
+print(combined)
