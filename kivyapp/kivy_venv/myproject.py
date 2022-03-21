@@ -1,5 +1,3 @@
-from tkinter import DISABLED
-import kivy
 from kivy.config import Config
 
 Config.set("graphics", "width", "800")
@@ -15,12 +13,12 @@ from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
 from kivy.animation import Animation
 from kivy.base import runTouchApp
+from kivy.input import MotionEvent
 from kivy_garden.mapview import MapView, MapSource, MapMarker
 from kivy.app import App
 import numpy as np
 import requests as req
 from functools import partial
-
 
 api_key = "8ab594a86b3faea921595e6f"
 
@@ -36,9 +34,9 @@ data_object = req.get(data_url)
 data_json = data_object.json()
 current_data = data_json["conversion_rates"]
 
-# CLEAN UP AND ORGANIZE DATA FOR MAPPING
+# CLEAN UP AND ORGANIZE DATA FOR MAP MARKERS
 # COORDINATES
-with open("world_country_and_usa_states_latitude_and_longitude_values.csv", "r") as fid:
+with open("coordinates.csv", "r") as fid:
     lines = fid.readlines()
 del lines[0]
 lines = [item[3:-4] for item in lines]
@@ -54,17 +52,26 @@ lines1 = []
 [lines1.append([item[:][0]] + [item[:][-1][0:3]]) for item in lines]
 codes_lst = lines1
 
-# MERGING
+# MERGING TO DICTIONARY
 codes_dict = dict(codes_lst)
-combined = [ [*v, k, codes_dict.get(k) ] for [*v, k] in coordinates if k in codes_dict ]
-
-print(combined)
+combined = [[*v, k, codes_dict.get(k)] for [*v, k] in coordinates if k in codes_dict]
+for item in combined:
+    del item[2]
+combined = [item[-1:] + item[:-1] for item in combined]
+combined = [[item[0], [item[1], item[2]]] for item in combined]
+[float(item[1][0]) and float(item[1][1]) for item in combined]
+lat_list = [[item[0], item[1][0]] for item in combined]
+long_list = [[item[0], item[1][1]] for item in combined]
+lat_dict = dict(lat_list)
+long_dict = dict(long_list)
 
 
 class TrustyConverto(App):
     def build(self):
         self.window = FloatLayout()
         self.window.resizable = False
+
+        # self.event = MotionEvent(device=click, id=str, args=list)
 
         self.codes_src = country_codes
         self.codes = []
@@ -99,6 +106,8 @@ class TrustyConverto(App):
             pos=(10, 580),
             values=self.codes,
             text="From Currency",
+            on_release=placemarker1
+            # text_autoupdate=True,
         )
         self.window.add_widget(self.dropdown1)
 
@@ -108,6 +117,8 @@ class TrustyConverto(App):
             pos=(482, 580),
             values=self.codes,
             text="To Currency",
+            on_release=placemarker2
+            # text_autoupdate=True,
         )
         self.window.add_widget(self.dropdown2)
 
@@ -136,17 +147,12 @@ class TrustyConverto(App):
         self.window.add_widget(self.text_input_button)
 
         self.mapview = MapView(
-            zoom=2,
-            size_hint=(0.95, 0.55),
-            pos=(20, 10)
+            zoom=2, size_hint=(0.95, 0.55), pos=(20, 10), lat=0, lon=0
         )
-        self.mapview.map_source = "osm"
-        self.marker1 = MapMarker(source="red_dot.png")
-        #
-        self.marker2 = MapMarker(source="blue_dot.png")
-        #
-        self.mapview.add_marker(self.marker1)
-        self.mapview.add_marker(self.marker2)
+        self.marker1 = MapMarker(source="red_dot1.png")
+        self.marker2 = MapMarker(source="blue_dot1.png")
+        self.marker1key = self.dropdown1.text[0:3]
+        self.marker2key = self.dropdown2.text[0:3]
         self.window.add_widget(self.mapview)
 
         return self.window
@@ -154,7 +160,28 @@ class TrustyConverto(App):
 
 app = TrustyConverto()
 
+# MAP MARKER PLACEMENT FUNCTIONS
+def placemarker1(self):
+    if app.dropdown1.text == "From Currency":
+        app.mapview.remove_marker(app.marker1)
+    else:
+        app.greeting.text = "From " + app.marker1key + "..."
+        app.marker1.lat = lat_dict[app.marker1key]
+        app.marker1.lon = long_dict[app.marker1key]
+        app.mapview.add_marker(app.marker1)
 
+
+def placemarker2(self):
+    if app.dropdown2.text == "To Currency":
+        app.mapview.remove_marker(app.marker2)
+    else:
+        app.greeting.text = "FROM " + app.marker1key + " TO " + app.marker2key
+        app.marker2.lat = lat_dict[app.marker2key]
+        app.marker2.lon = long_dict[app.marker2key]
+        app.mapview.add_marker(app.marker2)
+
+
+# CURRENCY CONVERSION FUNCTION
 def conversion(self):
     if (
         app.textinput1.text == ""
@@ -188,7 +215,6 @@ def conversion(self):
     app.text_input_button.text = str(new_amount)
 
 
+# RUN PROGRAM
 if __name__ == "__main__":
     app.run()
-
-# print(app.dropdown1.text)
