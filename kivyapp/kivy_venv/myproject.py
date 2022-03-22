@@ -7,6 +7,7 @@ from turtle import onrelease
 from kivy.app import App
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 from kivy.uix.button import Button
@@ -100,27 +101,37 @@ class TrustyConverto(App):
         )
         self.window.add_widget(self.greeting)
 
-        self.dropdown1 = Spinner(
-            width=500,
-            size_hint=(0.38, 0.1),
-            pos=(10, 580),
-            values=self.codes,
+        self.dropdown1 = DropDown()
+        for items in self.codes:
+            self.btn1 = Button(text=items, size_hint_y=None, height=44)
+            self.btn1.bind(on_release=lambda btn: self.dropdown1.select(self.btn1.text))
+            self.dropdown1.add_widget(self.btn1)
+        self.mainbutton1 = Button(
             text="From Currency",
-            on_release=placemarker1
-            # text_autoupdate=True,
+            pos=(10, 580),
+            size_hint=(0.38, 0.10),
         )
-        self.window.add_widget(self.dropdown1)
+        self.mainbutton1.bind(on_release=self.dropdown1.open)
+        self.dropdown1.bind(
+            on_select=lambda instance, x: setattr(self.mainbutton1, "text", x)
+        )
+        self.window.add_widget(self.mainbutton1)
 
-        self.dropdown2 = Spinner(
-            width=500,
-            size_hint=(0.38, 0.1),
-            pos=(482, 580),
-            values=self.codes,
+        self.dropdown2 = DropDown()
+        for items in self.codes:
+            self.btn2 = Button(text=items, size_hint_y=None, height=44)
+            self.btn2.bind(on_release=lambda btn: self.dropdown2.select(self.btn2.text))
+            self.dropdown2.add_widget(self.btn2)
+        self.mainbutton2 = Button(
             text="To Currency",
-            on_release=placemarker2
-            # text_autoupdate=True,
+            pos=(482, 580),
+            size_hint=(0.38, 0.10),
         )
-        self.window.add_widget(self.dropdown2)
+        self.mainbutton2.bind(on_release=self.dropdown2.open)
+        self.dropdown2.bind(
+            on_select=lambda instance, x: setattr(self.mainbutton2, "text", x)
+        )
+        self.window.add_widget(self.mainbutton2)
 
         self.textinput1 = TextInput(
             halign="center",
@@ -149,11 +160,22 @@ class TrustyConverto(App):
         self.mapview = MapView(
             zoom=2, size_hint=(0.95, 0.55), pos=(20, 10), lat=0, lon=0
         )
-        self.marker1 = MapMarker(source="red_dot1.png")
-        self.marker2 = MapMarker(source="blue_dot1.png")
-        self.marker1key = self.dropdown1.text[0:3]
-        self.marker2key = self.dropdown2.text[0:3]
+        self.marker1key = self.mainbutton1.text[0:3]
+        self.marker2key = self.mainbutton2.text[0:3]
         self.window.add_widget(self.mapview)
+
+        self.marker1 = MapMarker(
+            source="red_dot1.png",
+            lat=lat_dict[self.marker1key] if self.marker1key != "Fro" else 0,
+            lon=long_dict[self.marker1key] if self.marker1key != "Fro" else 0,
+        )
+        self.marker2 = MapMarker(
+            source="blue_dot1.png",
+            lat=lat_dict[self.marker2key] if self.marker2key != "To " else 0,
+            lon=long_dict[self.marker2key] if self.marker2key != "To " else 0,
+        )
+
+        print(self.marker1key)
 
         return self.window
 
