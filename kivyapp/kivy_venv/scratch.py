@@ -1,6 +1,21 @@
-# CLEAN UP AND ORGANIZE DATA FOR MAPPING
+import myproject
+from myproject import *
+
+# COUNTRY CODES
+codes_url = f"https://v6.exchangerate-api.com/v6/{api_key}/codes"
+codes_object = req.get(codes_url)
+codes_json = codes_object.json()
+country_codes = codes_json["supported_codes"]
+
+# CONVERSION DATA
+data_url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/USD"
+data_object = req.get(data_url)
+data_json = data_object.json()
+current_data = data_json["conversion_rates"]
+
+# CLEAN UP AND ORGANIZE DATA FOR MAP MARKERS
 # COORDINATES
-with open("world_country_and_usa_states_latitude_and_longitude_values.csv", "r") as fid:
+with open("coordinates.csv", "r") as fid:
     lines = fid.readlines()
 del lines[0]
 lines = [item[3:-4] for item in lines]
@@ -16,81 +31,52 @@ lines1 = []
 [lines1.append([item[:][0]] + [item[:][-1][0:3]]) for item in lines]
 codes_lst = lines1
 
-# MERGING
-def find(elem_a, listb):
-    for x in listb:
-        if elem_a == x[0]:
-            return x[1]
-    return False
+# MERGING TO DICTIONARY
+codes_dict = dict(codes_lst)
+combined = [[*v, k, codes_dict.get(k)] for [*v, k] in coordinates if k in codes_dict]
+for item in combined:
+    del item[2]
+combined = [item[-1:] + item[:-1] for item in combined]
+combined = [[item[0], [item[1], item[2]]] for item in combined]
+[float(item[1][0]) and float(item[1][1]) for item in combined]
+lat_list = [[item[0], item[1][0]] for item in combined]
+long_list = [[item[0], item[1][1]] for item in combined]
+lat_dict = dict(lat_list)
+long_dict = dict(long_list)
+
+lat_dict_keys = list(lat_dict.keys())
+
+codes_src = country_codes
+codes = []
+for items in country_codes:
+    codes.append(str(" ".join(items)))
 
 
-combined = []
-for sub_list in coordinates:
-    a = find(sub_list[2], codes_lst)
-    if a:
-        combined.append(sub_list + [a])
-
-print(combined)
+codes_short = [item[0:3] for item in codes]
 
 
-while type(app.dropdown1.text) == str:
-    app.mapview.add_marker(app.marker1)
-    for item in combined:
-        app.marker1.lat = item[app.dropdown1.text[0:3]]
-        app.marker1.lon = item[app.dropdown1.text[0:3]]
-
-while type(app.dropdown2.text) == str:
-    app.mapview.add_marker(app.marker2)
-    for item in combined:
-        app.marker2.lat = item[app.dropdown2.text[0:3]]
-        app.marker2.lon = item[app.dropdown2.text[0:3]]
-
-        ###########################################################
-        if self.dropdown1.text == "From Currency":
-            self.mapview.remove_marker(self.marker1)
-        else:
-            self.greeting.text = "From " + self.marker1key + "..."
-            self.marker1.lat = lat_dict[self.marker1key]
-            self.marker1.lon = long_dict[self.marker1key]
-
-        if self.dropdown2.text == "To Currency":
-            self.mapview.remove_marker(self.marker2)
-        else:
-            self.greeting.text = "FROM " + self.marker1key + " TO " + self.marker2key
-            self.marker2.lat = lat_dict[self.marker2key]
-            self.marker2.lon = long_dict[self.marker2key]
-
-########################################################################
-def placemarker1():
-    if app.dropdown1.text == "From Currency":
-        app.mapview.remove_marker(app.marker1)
+inboth = []
+notinboth = []
+for item in codes_short:
+    if item in lat_dict_keys:
+        inboth.append(item)
     else:
-        app.greeting.text = "From " + app.marker1key + "..."
-        app.marker1.lat = lat_dict[app.marker1key]
-        app.marker1.lon = long_dict[app.marker1key]
-        app.mapview.add_marker(app.marker1)
+        notinboth.append(item)
 
-
-def placemarker2():
-    if app.dropdown2.text == "To Currency":
-        app.mapview.remove_marker(app.marker2)
+inboth2 = []
+notinboth2 = []
+for item in lat_dict_keys:
+    if item in codes_short:
+        inboth2.append(item)
     else:
-        app.greeting.text = "FROM " + app.marker1key + " TO " + app.marker2key
-        app.marker2.lat = lat_dict[app.marker2key]
-        app.marker2.lon = long_dict[app.marker2key]
-        app.mapview.add_marker(app.marker2)
+        notinboth2.append(item)
 
+inboth3 = []
+notinboth3 = []
+for item in notinboth:
+    if item in notinboth2:
+        inboth3.append(item)
+    else:
+        notinboth3.append(item)
 
-######################################################################
-def placemarker():
-    if app.event.is_touch == True:
-        app.mapview.remove_marker(app.marker1)
-        app.greeting.text = "From " + app.marker1key + "..."
-        app.marker1.lat = lat_dict[app.marker1key]
-        app.marker1.lon = long_dict[app.marker1key]
-        app.mapview.add_marker(app.marker1)
-        app.mapview.remove_marker(app.marker2)
-        app.greeting.text = "FROM " + app.marker1key + " TO " + app.marker2key
-        app.marker2.lat = lat_dict[app.marker2key]
-        app.marker2.lon = long_dict[app.marker2key]
-        app.mapview.add_marker(app.marker2)
+print(notinboth2)

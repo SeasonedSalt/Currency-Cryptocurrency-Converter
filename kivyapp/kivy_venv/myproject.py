@@ -67,12 +67,77 @@ lat_dict = dict(lat_list)
 long_dict = dict(long_list)
 
 
+class Actions:
+    def select_btn1(self, x):
+        app.mainbutton1.text = x.text
+        app.dropdown1.select(app.mainbutton1.text)
+        self.marker1key = app.mainbutton1.text[0:3]
+        if app.mainbutton1.text == "From Currency":
+            app.mapview.remove_marker(app.marker1)
+        else:
+            app.greeting.text = "From " + self.marker1key + "..."
+            app.marker1.lat = lat_dict[self.marker1key]
+            app.marker1.lon = long_dict[self.marker1key]
+            app.mapview.add_marker(app.marker1)
+
+    def select_btn2(self, x):
+        app.mainbutton2.text = x.text
+        app.dropdown2.select(app.mainbutton2.text)
+        self.marker2key = app.mainbutton2.text[0:3]
+        if app.mainbutton2.text == "To Currency":
+            app.mapview.remove_marker(app.marker2)
+        else:
+            app.greeting.text = "FROM " + self.marker1key + " TO " + self.marker2key
+            app.marker2.lat = lat_dict[self.marker2key]
+            app.marker2.lon = long_dict[self.marker2key]
+            app.mapview.add_marker(app.marker2)
+
+    def conversion(self, x):
+        if (
+            app.textinput1.text == ""
+            and app.mainbutton1.text == "From Currency"
+            and app.mainbutton2.text == "To Currency"
+        ):
+            new_amount = "Choose currencies and enter initial amount!"
+        elif app.textinput1.text == "" and app.mainbutton1.text == "From Currency":
+            new_amount = "Choose first currency and enter initial amount!"
+        elif app.textinput1.text == "" and app.mainbutton2.text == "To Currency":
+            new_amount = "Choose second currency and enter initial amount!"
+        elif app.textinput1.text == "":
+            new_amount = "Enter initial amount!"
+        elif (
+            app.mainbutton1.text == "From Currency"
+            and app.mainbutton2.text == "To Currency"
+        ):
+            new_amount = "Choose currencies!"
+        elif app.mainbutton1.text == "From Currency":
+            new_amount = "Choose first currency!"
+        elif app.mainbutton2.text == "To Currency":
+            new_amount = "Choose second currency!"
+        elif app.mainbutton1.text == app.mainbutton2.text:
+            new_amount = "Currencies are the same!"
+        elif app.mainbutton1.text == "USD, United States Dollar":
+            mid_conversion = (
+                float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
+            )
+            new_amount = round(mid_conversion, 4)
+        else:
+            to_usd = float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
+            mid_conversion = to_usd / app.rates[app.mainbutton2.text[0:3]]
+            new_amount = round(mid_conversion, 4)
+
+        app.text_input_button.text = ""
+        app.text_input_button.text = str(new_amount)
+
+
+actions = Actions()
+conversion = actions.conversion
+
+
 class TrustyConverto(App):
     def build(self):
         self.window = FloatLayout()
         self.window.resizable = False
-
-        # self.event = MotionEvent(device=click, id=str, args=list)
 
         self.codes_src = country_codes
         self.codes = []
@@ -104,7 +169,7 @@ class TrustyConverto(App):
         self.dropdown1 = DropDown()
         for items in self.codes:
             self.btn1 = Button(text=items, size_hint_y=None, height=44)
-            self.btn1.bind(on_release=lambda btn: self.dropdown1.select(self.btn1.text))
+            self.btn1.bind(on_release=actions.select_btn1)
             self.dropdown1.add_widget(self.btn1)
         self.mainbutton1 = Button(
             text="From Currency",
@@ -117,10 +182,10 @@ class TrustyConverto(App):
         )
         self.window.add_widget(self.mainbutton1)
 
-        self.dropdown2 = DropDown()
+        self.dropdown2 = DropDown(dismiss_on_select=True)
         for items in self.codes:
             self.btn2 = Button(text=items, size_hint_y=None, height=44)
-            self.btn2.bind(on_release=lambda btn: self.dropdown2.select(self.btn2.text))
+            self.btn2.bind(on_release=actions.select_btn2)
             self.dropdown2.add_widget(self.btn2)
         self.mainbutton2 = Button(
             text="To Currency",
@@ -160,81 +225,19 @@ class TrustyConverto(App):
         self.mapview = MapView(
             zoom=2, size_hint=(0.95, 0.55), pos=(20, 10), lat=0, lon=0
         )
-        self.marker1key = self.mainbutton1.text[0:3]
-        self.marker2key = self.mainbutton2.text[0:3]
         self.window.add_widget(self.mapview)
 
-        self.marker1 = MapMarker(
-            source="red_dot1.png",
-            lat=lat_dict[self.marker1key] if self.marker1key != "Fro" else 0,
-            lon=long_dict[self.marker1key] if self.marker1key != "Fro" else 0,
-        )
-        self.marker2 = MapMarker(
-            source="blue_dot1.png",
-            lat=lat_dict[self.marker2key] if self.marker2key != "To " else 0,
-            lon=long_dict[self.marker2key] if self.marker2key != "To " else 0,
-        )
-
-        print(self.marker1key)
+        self.marker1 = MapMarker(source="red_dot1.png")
+        self.marker2 = MapMarker(source="blue_dot1.png")
 
         return self.window
 
 
 app = TrustyConverto()
-
-# MAP MARKER PLACEMENT FUNCTIONS
-def placemarker1(self):
-    if app.dropdown1.text == "From Currency":
-        app.mapview.remove_marker(app.marker1)
-    else:
-        app.greeting.text = "From " + app.marker1key + "..."
-        app.marker1.lat = lat_dict[app.marker1key]
-        app.marker1.lon = long_dict[app.marker1key]
-        app.mapview.add_marker(app.marker1)
+app.build()
 
 
-def placemarker2(self):
-    if app.dropdown2.text == "To Currency":
-        app.mapview.remove_marker(app.marker2)
-    else:
-        app.greeting.text = "FROM " + app.marker1key + " TO " + app.marker2key
-        app.marker2.lat = lat_dict[app.marker2key]
-        app.marker2.lon = long_dict[app.marker2key]
-        app.mapview.add_marker(app.marker2)
-
-
-# CURRENCY CONVERSION FUNCTION
-def conversion(self):
-    if (
-        app.textinput1.text == ""
-        and app.dropdown1.text == "From Currency"
-        and app.dropdown2.text == "To Currency"
-    ):
-        new_amount = "Choose currencies and enter initial amount!"
-    elif app.textinput1.text == "" and app.dropdown1.text == "From Currency":
-        new_amount = "Choose first currency and enter initial amount!"
-    elif app.textinput1.text == "" and app.dropdown2.text == "To Currency":
-        new_amount = "Choose second currency and enter initial amount!"
-    elif app.textinput1.text == "":
-        new_amount = "Enter initial amount!"
-    elif app.dropdown1.text == "From Currency" and app.dropdown2.text == "To Currency":
-        new_amount = "Choose currencies!"
-    elif app.dropdown1.text == "From Currency":
-        new_amount = "Choose first currency!"
-    elif app.dropdown2.text == "To Currency":
-        new_amount = "Choose second currency!"
-    elif app.dropdown1.text == app.dropdown2.text:
-        new_amount = "Currencies are the same!"
-    elif app.dropdown1.text == "USD, United States Dollar":
-        mid_conversion = float(app.textinput1.text) / app.rates[app.dropdown2.text[0:3]]
-        new_amount = round(mid_conversion, 4)
-    else:
-        to_usd = float(app.textinput1.text) / app.rates[app.dropdown1.text[0:3]]
-        mid_conversion = to_usd / app.rates[app.dropdown2.text[0:3]]
-        new_amount = round(mid_conversion, 4)
-
-    app.text_input_button.text = ""
-    app.text_input_button.text = str(new_amount)
+# print(lat_dict)
 
 
 # RUN PROGRAM
