@@ -261,8 +261,14 @@ class TrustyConverto(App):
         self.window.add_widget(self.text_input_button)
 
         self.mapview = MapView(
-            zoom=2, size_hint=(0.95, 0.55), pos=(20, 10), lat=0, lon=0
+            zoom=2,
+            size_hint=(0.95, 0.55),
+            pos=(20, 10),
+            lat=0,
+            lon=0,
+            map_source="transport_dark",
         )
+        self.map_source = MapSource{provider = "transport_dark": (0, 0, 18, "https://tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=8b1e1df284b444579fc51e41f27672b0")}
         self.window.add_widget(self.mapview)
 
         self.marker1 = MapMarker(source="red_dot1.png")
