@@ -74,8 +74,20 @@ class Actions:
         self.marker1key = app.mainbutton1.text[0:3]
         if app.mainbutton1.text == "From Currency":
             app.mapview.remove_marker(app.marker1)
-        else:
-            app.greeting.text = "From " + self.marker1key + "..."
+        elif app.mainbutton2.text != "To Currency":
+            app.mapview.remove_marker(app.marker1)
+            app.greeting.text = (
+                "FROM " + self.marker1key + " TO " + app.mainbutton2.text[0:3]
+            )
+            app.marker1.lat = lat_dict[self.marker1key]
+            app.marker1.lon = long_dict[self.marker1key]
+            app.mapview.add_marker(app.marker1)
+        elif (
+            app.mainbutton2.text == "To Currency"
+            and app.mainbutton1.text != "From Currency"
+        ):
+            app.mapview.remove_marker(app.marker1)
+            app.greeting.text = "From " + self.marker1key + " TO ___"
             app.marker1.lat = lat_dict[self.marker1key]
             app.marker1.lon = long_dict[self.marker1key]
             app.mapview.add_marker(app.marker1)
@@ -86,8 +98,21 @@ class Actions:
         self.marker2key = app.mainbutton2.text[0:3]
         if app.mainbutton2.text == "To Currency":
             app.mapview.remove_marker(app.marker2)
+            app.greeting.text = "FROM " + self.marker1key + " TO ___"
+            app.marker2.lat = lat_dict[self.marker1key]
+            app.marker2.lon = long_dict[self.marker1key]
+            app.mapview.add_marker(app.marker2)
+        elif app.mainbutton1.text == "From Currency":
+            app.mapview.remove_marker(app.marker2)
+            app.greeting.text = "FROM ___ TO " + self.marker2key
+            app.marker2.lat = lat_dict[self.marker2key]
+            app.marker2.lon = long_dict[self.marker2key]
+            app.mapview.add_marker(app.marker2)
         else:
-            app.greeting.text = "FROM " + self.marker1key + " TO " + self.marker2key
+            app.mapview.remove_marker(app.marker2)
+            app.greeting.text = (
+                "FROM " + app.mainbutton1.text[0:3] + " TO " + self.marker2key
+            )
             app.marker2.lat = lat_dict[self.marker2key]
             app.marker2.lon = long_dict[self.marker2key]
             app.mapview.add_marker(app.marker2)
@@ -99,32 +124,41 @@ class Actions:
             and app.mainbutton2.text == "To Currency"
         ):
             new_amount = "Choose currencies and enter initial amount!"
+            app.text_input_button.font_size = 25
         elif app.textinput1.text == "" and app.mainbutton1.text == "From Currency":
             new_amount = "Choose first currency and enter initial amount!"
+            app.text_input_button.font_size = 25
         elif app.textinput1.text == "" and app.mainbutton2.text == "To Currency":
             new_amount = "Choose second currency and enter initial amount!"
+            app.text_input_button.font_size = 25
         elif app.textinput1.text == "":
             new_amount = "Enter initial amount!"
+            app.text_input_button.font_size = 30
         elif (
             app.mainbutton1.text == "From Currency"
             and app.mainbutton2.text == "To Currency"
         ):
             new_amount = "Choose currencies!"
+            app.text_input_button.font_size = 30
         elif app.mainbutton1.text == "From Currency":
             new_amount = "Choose first currency!"
+            app.text_input_button.font_size = 30
         elif app.mainbutton2.text == "To Currency":
             new_amount = "Choose second currency!"
-        elif app.mainbutton1.text == app.mainbutton2.text:
-            new_amount = "Currencies are the same!"
-        elif app.mainbutton1.text == "USD, United States Dollar":
+            app.text_input_button.font_size = 30
+        # elif app.mainbutton1.text == app.mainbutton2.text:
+        # new_amount = "Currencies are the same!"
+        elif app.mainbutton1.text == "USD United States Dollar":
             mid_conversion = (
                 float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
             )
             new_amount = round(mid_conversion, 4)
+            app.text_input_button.font_size = 40
         else:
-            to_usd = float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
-            mid_conversion = to_usd / app.rates[app.mainbutton2.text[0:3]]
+            usd = float(app.textinput1.text) * app.rates[app.mainbutton1.text[0:3]]
+            mid_conversion = usd / app.rates[app.mainbutton2.text[0:3]]
             new_amount = round(mid_conversion, 4)
+            app.text_input_button.font_size = 40
 
         app.text_input_button.text = ""
         app.text_input_button.text = str(new_amount)
@@ -148,8 +182,8 @@ class TrustyConverto(App):
 
         self.convert_button = Button(
             text="Convert",
-            size_hint=(0.15, 0.12),
-            pos=(337, 650),
+            size_hint=(0.15, 0.10),
+            pos=(337, 620),
             on_release=conversion,
             background_color="00FF00",
         )
@@ -168,13 +202,15 @@ class TrustyConverto(App):
 
         self.dropdown1 = DropDown()
         for items in self.codes:
-            self.btn1 = Button(text=items, size_hint_y=None, height=44)
+            self.btn1 = Button(text=items, size_hint_y=None, height=44, font_size=13)
             self.btn1.bind(on_release=actions.select_btn1)
             self.dropdown1.add_widget(self.btn1)
         self.mainbutton1 = Button(
             text="From Currency",
             pos=(10, 580),
             size_hint=(0.38, 0.10),
+            background_color="#F67280",
+            font_size=14,
         )
         self.mainbutton1.bind(on_release=self.dropdown1.open)
         self.dropdown1.bind(
@@ -184,13 +220,15 @@ class TrustyConverto(App):
 
         self.dropdown2 = DropDown(dismiss_on_select=True)
         for items in self.codes:
-            self.btn2 = Button(text=items, size_hint_y=None, height=44)
+            self.btn2 = Button(text=items, size_hint_y=None, height=44, font_size=13)
             self.btn2.bind(on_release=actions.select_btn2)
             self.dropdown2.add_widget(self.btn2)
         self.mainbutton2 = Button(
             text="To Currency",
             pos=(482, 580),
             size_hint=(0.38, 0.10),
+            background_color="#00BFFF",
+            font_size=14,
         )
         self.mainbutton2.bind(on_release=self.dropdown2.open)
         self.dropdown2.bind(
@@ -200,19 +238,19 @@ class TrustyConverto(App):
 
         self.textinput1 = TextInput(
             halign="center",
-            padding_y=45,
-            size_hint=(0.38, 0.13),
+            padding_y=9.5,
+            size_hint=(0.38, 0.07),
             pos=(10, 700),
-            font_size=30,
+            font_size=40,
             background_normal="#D3D3D3",
         )
         self.window.add_widget(self.textinput1)
 
         self.text_input_button = Button(
             text_size=(290, 100),
-            size_hint=(0.38, 0.13),
+            size_hint=(0.38, 0.07),
             pos=(482, 700),
-            font_size=30,
+            font_size=40,
             disabled=True,
             halign="center",
             valign="middle",
