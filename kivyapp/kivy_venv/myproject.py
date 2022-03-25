@@ -11,15 +11,10 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.spinner import Spinner
-from kivy.animation import Animation
-from kivy.base import runTouchApp
-from kivy.input import MotionEvent
-from kivy_garden.mapview import MapView, MapSource, MapMarker
+from kivy_garden.mapview import MapView, MapSource, MapMarker, Coordinate
 from kivy.app import App
-import numpy as np
 import requests as req
-from functools import partial
+
 
 api_key = "8ab594a86b3faea921595e6f"
 
@@ -91,6 +86,8 @@ class Actions:
             app.marker1.lat = lat_dict[self.marker1key]
             app.marker1.lon = long_dict[self.marker1key]
             app.mapview.add_marker(app.marker1)
+        # app.mapview.center_on(app.marker1.lat, app.marker1.lon)
+        # app.mapview._zoom = 5
 
     def select_btn2(self, x):
         app.mainbutton2.text = x.text
@@ -116,6 +113,8 @@ class Actions:
             app.marker2.lat = lat_dict[self.marker2key]
             app.marker2.lon = long_dict[self.marker2key]
             app.mapview.add_marker(app.marker2)
+        # app.mapview.center_on(app.marker2.lat, app.marker2.lon)
+        # app.mapview._zoom = 5
 
     def conversion(self, x):
         if (
@@ -162,6 +161,8 @@ class Actions:
 
         app.text_input_button.text = ""
         app.text_input_button.text = str(new_amount)
+        # app.mapview.center_on(lat=0, lon=0)
+        # app.mapview._zoom = 2
 
 
 actions = Actions()
@@ -196,9 +197,18 @@ class TrustyConverto(App):
             font_size=30,
             outline_width=1,
             outline_color="green",
-            pos=(0, 425),
+            pos=(60, 340),
         )
         self.window.add_widget(self.greeting)
+
+        self.converto = Image(
+            source="chatbot.png",
+            keep_ratio=True,
+            size=(20, 70),
+            size_hint=(0.17, 0.17),
+            pos=(3, 750),
+        )
+        self.window.add_widget(self.converto)
 
         self.dropdown1 = DropDown()
         for items in self.codes:
@@ -266,9 +276,10 @@ class TrustyConverto(App):
             pos=(20, 10),
             lat=0,
             lon=0,
-            map_source="transport_dark",
+            double_tap_zoom=True,
+            _zoom=2,
+            snap_to_zoom=False,
         )
-        self.map_source = MapSource{provider = "transport_dark": (0, 0, 18, "https://tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=8b1e1df284b444579fc51e41f27672b0")}
         self.window.add_widget(self.mapview)
 
         self.marker1 = MapMarker(source="red_dot1.png")
@@ -279,7 +290,6 @@ class TrustyConverto(App):
 
 app = TrustyConverto()
 app.build()
-
 
 # print(lat_dict)
 
