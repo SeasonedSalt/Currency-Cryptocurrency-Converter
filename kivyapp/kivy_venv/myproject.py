@@ -1,7 +1,7 @@
 from kivy.config import Config
 
-Config.set("graphics", "width", "800")
-Config.set("graphics", "height", "1000")
+Config.set("graphics", "width", "1100")
+Config.set("graphics", "height", "900")
 Config.set("graphics", "resizable", False)
 from turtle import onrelease
 from kivy.app import App
@@ -11,7 +11,12 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy_garden.mapview import MapView, MapSource, MapMarker, Coordinate
+from kivy_garden.mapview import (
+    MapView,
+    MapSource,
+    MapMarker,
+    MarkerMapLayer,
+)
 from kivy.app import App
 import requests as req
 
@@ -70,51 +75,47 @@ class Actions:
         if app.mainbutton1.text == "From Currency":
             app.mapview.remove_marker(app.marker1)
         elif app.mainbutton2.text != "To Currency":
-            app.mapview.remove_marker(app.marker1)
             app.greeting.text = (
                 "FROM " + self.marker1key + " TO " + app.mainbutton2.text[0:3]
             )
             app.marker1.lat = lat_dict[self.marker1key]
             app.marker1.lon = long_dict[self.marker1key]
-            app.mapview.add_marker(app.marker1)
         elif (
             app.mainbutton2.text == "To Currency"
             and app.mainbutton1.text != "From Currency"
         ):
-            app.mapview.remove_marker(app.marker1)
             app.greeting.text = "From " + self.marker1key + " TO ___"
             app.marker1.lat = lat_dict[self.marker1key]
             app.marker1.lon = long_dict[self.marker1key]
-            app.mapview.add_marker(app.marker1)
-        # app.mapview.center_on(app.marker1.lat, app.marker1.lon)
-        # app.mapview._zoom = 5
+        app.mapview.remove_marker(app.marker1)
+        app.mapview.add_marker(app.marker1)
+        app.mapview.center_on(app.marker1.lat, app.marker1.lon)
+        # app.mapview.set_zoom_at(5, app.marker1.lat, app.marker1.lon)
+        app.mapview.zoom = 5
 
     def select_btn2(self, x):
         app.mainbutton2.text = x.text
         app.dropdown2.select(app.mainbutton2.text)
         self.marker2key = app.mainbutton2.text[0:3]
         if app.mainbutton2.text == "To Currency":
-            app.mapview.remove_marker(app.marker2)
             app.greeting.text = "FROM " + self.marker1key + " TO ___"
             app.marker2.lat = lat_dict[self.marker1key]
             app.marker2.lon = long_dict[self.marker1key]
-            app.mapview.add_marker(app.marker2)
         elif app.mainbutton1.text == "From Currency":
-            app.mapview.remove_marker(app.marker2)
             app.greeting.text = "FROM ___ TO " + self.marker2key
             app.marker2.lat = lat_dict[self.marker2key]
             app.marker2.lon = long_dict[self.marker2key]
-            app.mapview.add_marker(app.marker2)
         else:
-            app.mapview.remove_marker(app.marker2)
             app.greeting.text = (
                 "FROM " + app.mainbutton1.text[0:3] + " TO " + self.marker2key
             )
             app.marker2.lat = lat_dict[self.marker2key]
             app.marker2.lon = long_dict[self.marker2key]
-            app.mapview.add_marker(app.marker2)
-        # app.mapview.center_on(app.marker2.lat, app.marker2.lon)
-        # app.mapview._zoom = 5
+        app.mapview.remove_marker(app.marker2)
+        app.mapview.add_marker(app.marker2)
+        app.mapview.center_on(app.marker2.lat, app.marker2.lon)
+        # app.mapview.set_zoom_at(5, app.marker2.lat, app.marker2.lon)
+        app.mapview.zoom = 5
 
     def conversion(self, x):
         if (
@@ -147,22 +148,16 @@ class Actions:
             app.text_input_button.font_size = 30
         # elif app.mainbutton1.text == app.mainbutton2.text:
         # new_amount = "Currencies are the same!"
-        elif app.mainbutton1.text == "USD United States Dollar":
-            mid_conversion = (
-                float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
-            )
-            new_amount = round(mid_conversion, 4)
-            app.text_input_button.font_size = 40
         else:
-            usd = float(app.textinput1.text) * app.rates[app.mainbutton1.text[0:3]]
-            mid_conversion = usd / app.rates[app.mainbutton2.text[0:3]]
+            usd = float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
+            mid_conversion = usd * app.rates[app.mainbutton2.text[0:3]]
             new_amount = round(mid_conversion, 4)
             app.text_input_button.font_size = 40
 
         app.text_input_button.text = ""
         app.text_input_button.text = str(new_amount)
-        # app.mapview.center_on(lat=0, lon=0)
-        # app.mapview._zoom = 2
+        app.mapview.center_on(20, 0)
+        app.mapview.zoom = 2
 
 
 actions = Actions()
@@ -183,8 +178,8 @@ class TrustyConverto(App):
 
         self.convert_button = Button(
             text="Convert",
-            size_hint=(0.15, 0.10),
-            pos=(337, 620),
+            size_hint=(0.15, 0.19),
+            pos=(458, 540),
             on_release=conversion,
             background_color="00FF00",
         )
@@ -192,12 +187,12 @@ class TrustyConverto(App):
         self.window.add_widget(self.convert_button)
 
         self.greeting = Label(
-            text="BEEP CONVERTO IS AT YOUR SERVICE BOOP",
+            text="*BEEP* CONVERTO IS AT YOUR SERVICE *BOOP*",
             bold=True,
-            font_size=30,
+            font_size=38,
             outline_width=1,
             outline_color="green",
-            pos=(60, 340),
+            pos=(90, 330),
         )
         self.window.add_widget(self.greeting)
 
@@ -206,7 +201,7 @@ class TrustyConverto(App):
             keep_ratio=True,
             size=(20, 70),
             size_hint=(0.17, 0.17),
-            pos=(3, 750),
+            pos=(20, 710),
         )
         self.window.add_widget(self.converto)
 
@@ -217,7 +212,7 @@ class TrustyConverto(App):
             self.dropdown1.add_widget(self.btn1)
         self.mainbutton1 = Button(
             text="From Currency",
-            pos=(10, 580),
+            pos=(20, 540),
             size_hint=(0.38, 0.10),
             background_color="#F67280",
             font_size=14,
@@ -235,7 +230,7 @@ class TrustyConverto(App):
             self.dropdown2.add_widget(self.btn2)
         self.mainbutton2 = Button(
             text="To Currency",
-            pos=(482, 580),
+            pos=(643, 540),
             size_hint=(0.38, 0.10),
             background_color="#00BFFF",
             font_size=14,
@@ -249,8 +244,8 @@ class TrustyConverto(App):
         self.textinput1 = TextInput(
             halign="center",
             padding_y=9.5,
-            size_hint=(0.38, 0.07),
-            pos=(10, 700),
+            size_hint=(0.375, 0.07),
+            pos=(23, 650),
             font_size=40,
             background_normal="#D3D3D3",
         )
@@ -258,8 +253,8 @@ class TrustyConverto(App):
 
         self.text_input_button = Button(
             text_size=(290, 100),
-            size_hint=(0.38, 0.07),
-            pos=(482, 700),
+            size_hint=(0.375, 0.07),
+            pos=(646.5, 650),
             font_size=40,
             disabled=True,
             halign="center",
@@ -270,20 +265,22 @@ class TrustyConverto(App):
         )
         self.window.add_widget(self.text_input_button)
 
+        self.mapsource = MapSource(max_zoom=12, min_zoom=2)
+        self.marker1 = MapMarker(source="red_dot1.png")
+        self.marker2 = MapMarker(source="blue_dot1.png")
+        self.markerlayer = MarkerMapLayer()
         self.mapview = MapView(
             zoom=2,
             size_hint=(0.95, 0.55),
             pos=(20, 10),
-            lat=0,
+            lat=20,
             lon=0,
             double_tap_zoom=True,
             _zoom=2,
             snap_to_zoom=False,
+            map_source=self.mapsource,
         )
         self.window.add_widget(self.mapview)
-
-        self.marker1 = MapMarker(source="red_dot1.png")
-        self.marker2 = MapMarker(source="blue_dot1.png")
 
         return self.window
 
