@@ -1,4 +1,5 @@
 country_code,latitude,longitude,country,usa_state_code,usa_state_latitude,usa_state_longitude,usa_state
+DC,38.905985,-77.033418,District of Columbia,,,,
 AD,42.546245,1.601554,Andorra,AK,63.588753,-154.493062,Alaska
 AE,23.424076,53.847818,United Arab Emirates,AL,32.318231,-86.902298,Alabama
 AF,33.93911,67.709953,Afghanistan,AR,35.20105,-91.831833,Arkansas
@@ -6,7 +7,7 @@ AG,17.060816,-61.796428,Antigua and Barbuda,AZ,34.048928,-111.093731,Arizona
 AI,18.220554,-63.068615,Anguilla,CA,36.778261,-119.417932,California
 AL,41.153332,20.168331,Albania,CO,39.550051,-105.782067,Colorado
 AM,40.069099,45.038189,Armenia,CT,41.603221,-73.087749,Connecticut
-AN,12.226079,-69.060087,Netherlands Antilles,DC,38.905985,-77.033418,District of Columbia
+AN,12.226079,-69.060087,Netherlands Antilles,
 AO,-11.202692,17.873887,Angola,DE,38.910832,-75.52767,Delaware
 AQ,-75.250973,-0.071389,Antarctica,FL,27.664827,-81.515754,Florida
 AR,-38.416097,-63.616672,Argentina,GA,32.157435,-82.907123,Georgia
@@ -249,4 +250,3 @@ YT,-12.8275,45.166244,Mayotte,,,,
 ZA,-30.559482,22.937506,South Africa,,,,
 ZM,-13.133897,27.849332,Zambia,,,,
 ZW,-19.015438,29.154857,Zimbabwe,,,,
-X,38.89736868130061, -77.03662167044759,IMF,,,,

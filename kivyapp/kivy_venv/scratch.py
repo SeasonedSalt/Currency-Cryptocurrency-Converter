@@ -80,3 +80,27 @@ for item in notinboth:
         notinboth3.append(item)
 
 print(notinboth2)
+
+
+class MapBoundaries(MapView):
+    def on_map_relocated(self, *kwargs):
+        x1, y1, x2, y2 = self.get_bbox()
+        # Gets map coordinate extents (lat-lon)
+
+        centerX, centerY = app.window.center
+        # Gets center screen x-y position
+
+        centerLat, centerLon = self.get_latlon_at(centerX, centerY, zoom=self.zoom)
+        # Calculate lat-lon coordinate for x-y center position
+
+        latRemainder = centerLat - (x1 + x2) / 2
+        # For unknown reasons there is a discrepancy between the calculated center coordinate & the center coordinate returned through MapView.get_bbox(). The remainder is calculated for later
+
+        if x1 < -85.8:
+            self.center_on((x1 + x2) / 2 + latRemainder + 0.01, self.lon)
+        if x2 > 83.6:
+            self.center_on((x1 + x2) / 2 + latRemainder - 0.01, self.lon)
+        if y1 == -180:
+            self.center_on(self.lat, (y1 + y2) / 2 + 0.01)
+        if y2 == 180:
+            self.center_on(self.lat, (y1 + y2) / 2 - 0.01)

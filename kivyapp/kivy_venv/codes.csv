@@ -11,7 +11,7 @@ Isle of Man,,,IMP
 Serbia,,,RSD
 Saint Helena,,,SHP
 Samoa,,,WST
-IMF,,,XDR
+District of Columbia,,,XDR
 São Tomé and Príncipe,,,STN
 Cook Islands,CK,New Zealand Dollars,
 Niue,NU,New Zealand Dollars,
@@ -28,9 +28,9 @@ Tuvalu,TV,Australian Dollars,AUD
 American Samoa,AS,Euros,WST
 Andorra,AD,Euros,
 Austria,AT,Euros,
-Belgium,BE,Euros,
+Belgium,BE,Euros,EUR
 Finland,FI,Euros,
-France,FR,Euros,EUR
+France,FR,Euros,
 French Guiana,GF,Euros,
 French Southern Territories,TF,Euros,
 Germany,DE,Euros,

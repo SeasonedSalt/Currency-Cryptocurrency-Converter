@@ -1,12 +1,14 @@
+from re import L
 from kivy.config import Config
 
-Config.set("graphics", "width", "1100")
+Config.set("graphics", "width", "1080")
 Config.set("graphics", "height", "900")
 Config.set("graphics", "resizable", False)
 from turtle import onrelease
 from kivy.app import App
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
@@ -67,7 +69,7 @@ lat_dict = dict(lat_list)
 long_dict = dict(long_list)
 
 
-class Actions:
+class Actions(MapView):
     def select_btn1(self, x):
         app.mainbutton1.text = x.text
         app.dropdown1.select(app.mainbutton1.text)
@@ -90,8 +92,8 @@ class Actions:
         app.mapview.remove_marker(app.marker1)
         app.mapview.add_marker(app.marker1)
         app.mapview.center_on(app.marker1.lat, app.marker1.lon)
-        # app.mapview.set_zoom_at(5, app.marker1.lat, app.marker1.lon)
         app.mapview.zoom = 5
+        app.greeting.pos = (5, 330)
 
     def select_btn2(self, x):
         app.mainbutton2.text = x.text
@@ -114,8 +116,8 @@ class Actions:
         app.mapview.remove_marker(app.marker2)
         app.mapview.add_marker(app.marker2)
         app.mapview.center_on(app.marker2.lat, app.marker2.lon)
-        # app.mapview.set_zoom_at(5, app.marker2.lat, app.marker2.lon)
         app.mapview.zoom = 5
+        app.greeting.pos = (5, 330)
 
     def conversion(self, x):
         if (
@@ -146,8 +148,12 @@ class Actions:
         elif app.mainbutton2.text == "To Currency":
             new_amount = "Choose second currency!"
             app.text_input_button.font_size = 30
-        # elif app.mainbutton1.text == app.mainbutton2.text:
-        # new_amount = "Currencies are the same!"
+        elif str.isnumeric(app.textinput1.text) == False:
+            new_amount = "Not a number!"
+            app.text_input_button.font_size = 30
+        elif app.mainbutton1.text == app.mainbutton2.text:
+            new_amount = "Currencies are the same!"
+            app.text_input_button.font_size = 30
         else:
             usd = float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
             mid_conversion = usd * app.rates[app.mainbutton2.text[0:3]]
@@ -156,8 +162,26 @@ class Actions:
 
         app.text_input_button.text = ""
         app.text_input_button.text = str(new_amount)
+        if len(app.text_input_button.text) > 13:
+            app.text_input_button.font_size = 25
         app.mapview.center_on(20, 0)
         app.mapview.zoom = 2
+
+    def zoom_in(self, x):
+        if app.mapview.zoom < 12:
+            app.mapview.zoom += 1
+            app.mapview.remove_marker(app.marker1)
+            app.mapview.add_marker(app.marker1)
+            app.mapview.remove_marker(app.marker2)
+            app.mapview.add_marker(app.marker2)
+
+    def zoom_out(self, x):
+        if app.mapview.zoom > 2:
+            app.mapview.zoom -= 1
+            app.mapview.remove_marker(app.marker1)
+            app.mapview.add_marker(app.marker1)
+            app.mapview.remove_marker(app.marker2)
+            app.mapview.add_marker(app.marker2)
 
 
 actions = Actions()
@@ -178,10 +202,12 @@ class TrustyConverto(App):
 
         self.convert_button = Button(
             text="Convert",
-            size_hint=(0.15, 0.19),
-            pos=(458, 540),
+            size_hint=(0.16, 0.19),
+            pos=(450, 540),
             on_release=conversion,
             background_color="00FF00",
+            font_features="bold",
+            font_size=30,
         )
         self.convert_button.bind(on_release=conversion)
         self.window.add_widget(self.convert_button)
@@ -243,7 +269,7 @@ class TrustyConverto(App):
 
         self.textinput1 = TextInput(
             halign="center",
-            padding_y=9.5,
+            padding_y=7,
             size_hint=(0.375, 0.07),
             pos=(23, 650),
             font_size=40,
@@ -254,6 +280,7 @@ class TrustyConverto(App):
         self.text_input_button = Button(
             text_size=(290, 100),
             size_hint=(0.375, 0.07),
+            padding_x=0,
             pos=(646.5, 650),
             font_size=40,
             disabled=True,
@@ -265,7 +292,12 @@ class TrustyConverto(App):
         )
         self.window.add_widget(self.text_input_button)
 
-        self.mapsource = MapSource(max_zoom=12, min_zoom=2)
+        self.mapsource = MapSource(
+            url="https://tile.thunderforest.com/mobile-atlas/{z}/{x}/{y}.png?apikey=8b1e1df284b444579fc51e41f27672b0",
+            image_ext="png",
+            max_zoom=12,
+            min_zoom=2,
+        )
         self.marker1 = MapMarker(source="red_dot1.png")
         self.marker2 = MapMarker(source="blue_dot1.png")
         self.markerlayer = MarkerMapLayer()
@@ -280,7 +312,28 @@ class TrustyConverto(App):
             snap_to_zoom=False,
             map_source=self.mapsource,
         )
+
         self.window.add_widget(self.mapview)
+
+        self.plus_button = Button(
+            size_hint=(0.04, 0.04),
+            pos=(1000, 465),
+            on_release=actions.zoom_in,
+            background_color="#565051",
+            text="+",
+            font_size=30,
+        )
+        self.window.add_widget(self.plus_button)
+
+        self.minus_button = Button(
+            size_hint=(0.04, 0.04),
+            pos=(1000, 430),
+            on_release=actions.zoom_out,
+            text="-",
+            font_size=30,
+            background_color="#565051",
+        )
+        self.window.add_widget(self.minus_button)
 
         return self.window
 
