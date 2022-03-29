@@ -184,7 +184,6 @@ class Actions(MapView):
 
 
 actions = Actions()
-conversion = actions.conversion
 
 
 class TrustyConverto(App):
