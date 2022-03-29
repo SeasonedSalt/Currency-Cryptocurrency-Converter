@@ -8,7 +8,6 @@ from turtle import onrelease
 from kivy.app import App
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
@@ -39,7 +38,7 @@ current_data = data_json["conversion_rates"]
 
 # CLEAN UP AND ORGANIZE DATA FOR MAP MARKERS
 # COORDINATES
-with open("coordinates.csv", "r") as fid:
+with open("csv_data/coordinates.csv", "r") as fid:
     lines = fid.readlines()
 del lines[0]
 lines = [item[3:-4] for item in lines]
@@ -48,7 +47,7 @@ lines = [item[0:3] for item in lines]
 coordinates = lines
 
 # CURRENCY CODES
-with open("codes.csv", "r") as fid:
+with open("csv_data/codes.csv", "r") as fid:
     lines = fid.readlines()
 lines = [item.split(",") for item in lines]
 lines1 = []
@@ -223,7 +222,7 @@ class TrustyConverto(App):
         self.window.add_widget(self.greeting)
 
         self.converto = Image(
-            source="chatbot.png",
+            source="images/chatbot.png",
             keep_ratio=True,
             size=(20, 70),
             size_hint=(0.17, 0.17),
@@ -298,8 +297,8 @@ class TrustyConverto(App):
             max_zoom=12,
             min_zoom=2,
         )
-        self.marker1 = MapMarker(source="red_dot1.png")
-        self.marker2 = MapMarker(source="blue_dot1.png")
+        self.marker1 = MapMarker(source="images/red_dot1.png")
+        self.marker2 = MapMarker(source="images/blue_dot1.png")
         self.markerlayer = MarkerMapLayer()
         self.mapview = MapView(
             zoom=2,
