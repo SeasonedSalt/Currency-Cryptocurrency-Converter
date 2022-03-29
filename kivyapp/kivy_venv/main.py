@@ -339,8 +339,6 @@ class TrustyConverto(App):
 app = TrustyConverto()
 app.build()
 
-# print(lat_dict)
-
 
 # RUN PROGRAM
 if __name__ == "__main__":
