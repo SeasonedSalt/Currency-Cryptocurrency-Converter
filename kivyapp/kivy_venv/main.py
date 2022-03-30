@@ -1,4 +1,3 @@
-from re import L
 from kivy.config import Config
 
 Config.set("graphics", "width", "1080")
@@ -69,6 +68,8 @@ long_dict = dict(long_list)
 
 
 class Actions(MapView):
+
+    # ACTIONS TO BE TAKEN ONCE CURRENCIES ARE SELECTED IN DROPDOWNS (GREETING TEXT, MAP MARKERS, ZOOM TO MARKERS)
     def select_btn1(self, x):
         app.mainbutton1.text = x.text
         app.dropdown1.select(app.mainbutton1.text)
@@ -118,6 +119,7 @@ class Actions(MapView):
         app.mapview.zoom = 5
         app.greeting.pos = (5, 330)
 
+    # CONVERT BUTTON FUNCTIONALITY (CONVERT CURRENCIES, PLACE TEXT IN BOX 2, ZOOM MAP OUT)
     def conversion(self, x):
         if (
             app.textinput1.text == ""
@@ -166,6 +168,7 @@ class Actions(MapView):
         app.mapview.center_on(20, 0)
         app.mapview.zoom = 2
 
+    # MAP ZOOM BUTTONS FUNCTIONALITY
     def zoom_in(self, x):
         if app.mapview.zoom < 12:
             app.mapview.zoom += 1
@@ -184,9 +187,9 @@ class Actions(MapView):
 
 
 actions = Actions()
-conversion = actions.conversion
 
 
+# APP STRUCTURE
 class TrustyConverto(App):
     def build(self):
         self.window = FloatLayout()
@@ -203,12 +206,12 @@ class TrustyConverto(App):
             text="Convert",
             size_hint=(0.16, 0.19),
             pos=(450, 540),
-            on_release=conversion,
+            on_release=actions.conversion,
             background_color="00FF00",
             font_features="bold",
             font_size=30,
         )
-        self.convert_button.bind(on_release=conversion)
+        self.convert_button.bind(on_release=actions.conversion)
         self.window.add_widget(self.convert_button)
 
         self.greeting = Label(
@@ -340,9 +343,6 @@ class TrustyConverto(App):
 app = TrustyConverto()
 app.build()
 
-# print(lat_dict)
-
-
-# RUN PROGRAM
+# RUN
 if __name__ == "__main__":
     app.run()
