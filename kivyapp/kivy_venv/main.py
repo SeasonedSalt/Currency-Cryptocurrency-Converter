@@ -19,7 +19,7 @@ from kivy_garden.mapview import (
 from kivy.app import App
 import requests as req
 
-
+# NATION STATE CURRENCY DATA
 api_key = "8ab594a86b3faea921595e6f"
 
 # COUNTRY CODES
@@ -65,6 +65,23 @@ long_list = [[item[0], item[1][1]] for item in combined]
 lat_dict = dict(lat_list)
 long_dict = dict(long_list)
 
+# CRYPTO DATA
+c_api_key = "2d56fa3d1238c54975242d787469176588ff9e34"
+crypto_url = f"https://api.nomics.com/v1/currencies/ticker?key={c_api_key}"
+c_data_object = req.get(crypto_url)
+c_data_json = c_data_object.json()
+coins = [[item["symbol"], item["name"], item["price"]] for item in c_data_json]
+
+# PRICE DATA DICTIONARY
+coins_price = [[item[:][0], item[:][2]] for item in coins]
+coins_price_dict = dict(coins_price)
+
+# SYMBOLS AND NAMES FOR DROPDOWNS
+coins_id = [[item[:][0], item[:][1]] for item in coins]
+coins_id_list = []
+for item in coins_id:
+    coins_id_list.append(str(" ".join(item)))
+
 
 class Actions(MapView):
 
@@ -73,64 +90,135 @@ class Actions(MapView):
         app.mainbutton1.text = x.text
         app.dropdown1.select(app.mainbutton1.text)
         self.marker1key = app.mainbutton1.text[0:3]
+        coins3_split = app.mainbutton3.text.split(" ")
+        coins3 = coins3_split[0]
         if app.mainbutton1.text == "From Currency":
             app.mapview.remove_marker(app.marker1)
-        elif app.mainbutton2.text != "To Currency":
-            app.greeting.text = (
-                "FROM " + self.marker1key + " TO " + app.mainbutton2.text[0:3]
-            )
+            app.window.remove_widget(app.moon)
+        elif app.mainbutton2.text == "  ":
+            app.greeting.text = "FROM " + self.marker1key + " TO " + coins3
             app.marker1.lat = lat_dict[self.marker1key]
             app.marker1.lon = long_dict[self.marker1key]
+            app.window.remove_widget(app.moon)
+            app.window.add_widget(app.moon)
         elif (
             app.mainbutton2.text == "To Currency"
-            and app.mainbutton1.text != "From Currency"
+            and app.mainbutton3.text == "To Cryptocurrency"
         ):
             app.greeting.text = "From " + self.marker1key + " TO ___"
             app.marker1.lat = lat_dict[self.marker1key]
             app.marker1.lon = long_dict[self.marker1key]
+            app.window.remove_widget(app.moon)
         app.mapview.remove_marker(app.marker1)
         app.mapview.add_marker(app.marker1)
         app.mapview.center_on(app.marker1.lat, app.marker1.lon)
         app.mapview.zoom = 5
         app.greeting.pos = (5, 330)
+        app.mainbutton4.text = ""
 
     def select_btn2(self, x):
         app.mainbutton2.text = x.text
         app.dropdown2.select(app.mainbutton2.text)
         self.marker2key = app.mainbutton2.text[0:3]
-        if app.mainbutton2.text == "To Currency":
-            app.greeting.text = "FROM " + self.marker1key + " TO ___"
-            app.marker2.lat = lat_dict[self.marker1key]
-            app.marker2.lon = long_dict[self.marker1key]
-        elif app.mainbutton1.text == "From Currency":
+        coins4_split = app.mainbutton4.text.split(" ")
+        coins4 = coins4_split[0]
+        if (
+            app.mainbutton1.text == "From Currency"
+            and app.mainbutton4.text == "From Cryptocurrency"
+        ):
             app.greeting.text = "FROM ___ TO " + self.marker2key
             app.marker2.lat = lat_dict[self.marker2key]
             app.marker2.lon = long_dict[self.marker2key]
+            app.window.remove_widget(app.moon)
+        elif app.mainbutton1.text == "   ":
+            app.greeting.text = "FROM " + coins4 + " TO " + self.marker2key
+            app.marker2.lat = lat_dict[self.marker2key]
+            app.marker2.lon = long_dict[self.marker2key]
+            app.window.remove_widget(app.moon)
+            app.window.add_widget(app.moon)
         else:
             app.greeting.text = (
                 "FROM " + app.mainbutton1.text[0:3] + " TO " + self.marker2key
             )
             app.marker2.lat = lat_dict[self.marker2key]
             app.marker2.lon = long_dict[self.marker2key]
+            app.window.remove_widget(app.moon)
         app.mapview.remove_marker(app.marker2)
         app.mapview.add_marker(app.marker2)
         app.mapview.center_on(app.marker2.lat, app.marker2.lon)
         app.mapview.zoom = 5
         app.greeting.pos = (5, 330)
+        app.mainbutton3.text = " "
+
+    def select_btn3(self, x):
+        app.mainbutton3.text = x.text
+        app.dropdown3.select(app.mainbutton3.text)
+        coins3_split = app.mainbutton3.text.split(" ")
+        coins3 = coins3_split[0]
+        coins4_split = app.mainbutton4.text.split(" ")
+        coins4 = coins4_split[0]
+        if (
+            app.mainbutton1.text == "From Currency"
+            and app.mainbutton4.text == "From Cryptocurrency"
+        ):
+            app.greeting.text = "FROM ___" + " TO " + coins3
+        elif app.mainbutton1.text == "   ":
+            app.greeting.text = "FROM " + coins4 + " TO " + coins3
+        elif app.mainbutton4.text == "":
+            app.greeting.text = "FROM " + app.mainbutton1.text[0:3] + " TO " + coins3
+        app.greeting.pos = (5, 330)
+        app.mainbutton2.text = "  "
+        app.mapview.remove_marker(app.marker2)
+        app.window.remove_widget(app.moon)
+        app.window.add_widget(app.moon)
+
+    def select_btn4(self, x):
+        app.mainbutton4.text = x.text
+        app.dropdown4.select(app.mainbutton4.text)
+        coins4_split = app.mainbutton4.text.split(" ")
+        coins4 = coins4_split[0]
+        coins3_split = app.mainbutton3.text.split(" ")
+        coins3 = coins3_split[0]
+        if (
+            app.mainbutton2.text == "To Currency"
+            and app.mainbutton3.text == "To Cryptocurrency"
+        ):
+            app.greeting.text = "FROM " + coins4 + " TO ___"
+        elif app.mainbutton2.text == "  ":
+            app.greeting.text = "FROM " + coins4 + " TO " + coins3
+        elif app.mainbutton3.text == " ":
+            app.greeting.text = "FROM " + coins4 + " TO " + app.mainbutton2.text[0:3]
+        app.greeting.pos = (5, 330)
+        app.mainbutton1.text = "   "
+        app.mapview.remove_marker(app.marker1)
+        app.window.remove_widget(app.moon)
+        app.window.add_widget(app.moon)
 
     # CONVERT BUTTON FUNCTIONALITY (CONVERT CURRENCIES, PLACE TEXT IN BOX 2, ZOOM MAP OUT)
     def conversion(self, x):
         if (
             app.textinput1.text == ""
-            and app.mainbutton1.text == "From Currency"
-            and app.mainbutton2.text == "To Currency"
+            and (
+                app.mainbutton1.text == "From Currency"
+                or app.mainbutton4.text == "From Cryptocurrency"
+            )
+            and (
+                app.mainbutton2.text == "To Currency"
+                or app.mainbutton3.text == "To Cryptocurrency"
+            )
         ):
             new_amount = "Choose currencies and enter initial amount!"
             app.text_input_button.font_size = 25
-        elif app.textinput1.text == "" and app.mainbutton1.text == "From Currency":
+        elif app.textinput1.text == "" and (
+            app.mainbutton1.text == "From Currency"
+            or app.mainbutton4.text == "From Cryptocurrency"
+        ):
             new_amount = "Choose first currency and enter initial amount!"
             app.text_input_button.font_size = 25
-        elif app.textinput1.text == "" and app.mainbutton2.text == "To Currency":
+        elif app.textinput1.text == "" and (
+            app.mainbutton2.text == "To Currency"
+            or app.mainbutton3.text == "To Cryptocurrency"
+        ):
             new_amount = "Choose second currency and enter initial amount!"
             app.text_input_button.font_size = 25
         elif app.textinput1.text == "":
@@ -138,22 +226,56 @@ class Actions(MapView):
             app.text_input_button.font_size = 30
         elif (
             app.mainbutton1.text == "From Currency"
-            and app.mainbutton2.text == "To Currency"
+            or app.mainbutton4.text == "From Cryptocurrency"
+        ) and (
+            app.mainbutton2.text == "To Currency"
+            or app.mainbutton3.text == "To Cryptocurrency"
         ):
             new_amount = "Choose currencies!"
             app.text_input_button.font_size = 30
-        elif app.mainbutton1.text == "From Currency":
+        elif (
+            app.mainbutton1.text == "From Currency"
+            or app.mainbutton4.text == "From Cryptocurrency"
+        ):
             new_amount = "Choose first currency!"
             app.text_input_button.font_size = 30
-        elif app.mainbutton2.text == "To Currency":
+        elif (
+            app.mainbutton2.text == "To Currency"
+            or app.mainbutton3.text == "To Cryptocurrency"
+        ):
             new_amount = "Choose second currency!"
             app.text_input_button.font_size = 30
         elif str.isnumeric(app.textinput1.text) == False:
             new_amount = "Not a number!"
             app.text_input_button.font_size = 30
-        elif app.mainbutton1.text == app.mainbutton2.text:
+        elif (
+            app.mainbutton1.text == app.mainbutton2.text
+            or app.mainbutton1.text == app.mainbutton3.text
+            or app.mainbutton2.text == app.mainbutton4.text
+            or app.mainbutton3.text == app.mainbutton4.text
+        ):
             new_amount = "Currencies are the same!"
             app.text_input_button.font_size = 30
+        elif len(app.mainbutton4.text) > 4 and len(app.mainbutton3.text) > 4:
+            coins4_split = app.mainbutton4.text.split(" ")
+            coins4 = coins4_split[0]
+            coins3_split = app.mainbutton3.text.split(" ")
+            coins3 = coins3_split[0]
+            usd = float(app.textinput1.text) * float(coins_price_dict[coins4])
+            mid_conversion = usd / float(coins_price_dict[coins3])
+            new_amount = round(mid_conversion, 4)
+        elif len(app.mainbutton1.text) > 4 and len(app.mainbutton3.text) > 4:
+            coins3_split = app.mainbutton3.text.split(" ")
+            coins3 = coins3_split[0]
+            usd = float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
+            mid_conversion = usd * float(coins_price_dict[coins3])
+            new_amount = round(mid_conversion, 4)
+        elif len(app.mainbutton4.text) > 4 and len(app.mainbutton2.text) > 4:
+            coins4_split = app.mainbutton4.text.split(" ")
+            coins4 = coins4_split[0]
+            usd = float(app.textinput1.text) * app.rates[app.mainbutton2.text[0:3]]
+            mid_conversion = usd * float(coins_price_dict[coins4])
+            new_amount = round(mid_conversion, 4)
         else:
             usd = float(app.textinput1.text) / app.rates[app.mainbutton1.text[0:3]]
             mid_conversion = usd * app.rates[app.mainbutton2.text[0:3]]
@@ -171,18 +293,10 @@ class Actions(MapView):
     def zoom_in(self, x):
         if app.mapview.zoom < 12:
             app.mapview.zoom += 1
-            app.mapview.remove_marker(app.marker1)
-            app.mapview.add_marker(app.marker1)
-            app.mapview.remove_marker(app.marker2)
-            app.mapview.add_marker(app.marker2)
 
     def zoom_out(self, x):
         if app.mapview.zoom > 2:
             app.mapview.zoom -= 1
-            app.mapview.remove_marker(app.marker1)
-            app.mapview.add_marker(app.marker1)
-            app.mapview.remove_marker(app.marker2)
-            app.mapview.add_marker(app.marker2)
 
 
 actions = Actions()
@@ -232,6 +346,13 @@ class TrustyConverto(App):
         )
         self.window.add_widget(self.converto)
 
+        self.moon = Image(
+            source="images/moon.jpg",
+            keep_ratio=True,
+            size_hint=(0.22, 0.22),
+            pos=(785, 705),
+        )
+
         self.dropdown1 = DropDown()
         for items in self.codes:
             self.btn1 = Button(text=items, size_hint_y=None, height=44, font_size=13)
@@ -240,7 +361,7 @@ class TrustyConverto(App):
         self.mainbutton1 = Button(
             text="From Currency",
             pos=(20, 540),
-            size_hint=(0.38, 0.10),
+            size_hint=(0.19, 0.10),
             background_color="#F67280",
             font_size=14,
         )
@@ -250,6 +371,42 @@ class TrustyConverto(App):
         )
         self.window.add_widget(self.mainbutton1)
 
+        self.dropdown4 = DropDown()
+        for items in coins_id_list:
+            self.btn4 = Button(text=items, size_hint_y=None, height=44, font_size=13)
+            self.btn4.bind(on_release=actions.select_btn4)
+            self.dropdown4.add_widget(self.btn4)
+        self.mainbutton4 = Button(
+            text="From Cryptocurrency",
+            pos=(227, 540),
+            size_hint=(0.19, 0.10),
+            background_color="#F67280",
+            font_size=14,
+        )
+        self.mainbutton4.bind(on_release=self.dropdown4.open)
+        self.dropdown4.bind(
+            on_select=lambda instance, x: setattr(self.mainbutton4, "text", x)
+        )
+        self.window.add_widget(self.mainbutton4)
+
+        self.dropdown3 = DropDown()
+        for items in coins_id_list:
+            self.btn3 = Button(text=items, size_hint_y=None, height=44, font_size=13)
+            self.btn3.bind(on_release=actions.select_btn3)
+            self.dropdown3.add_widget(self.btn3)
+        self.mainbutton3 = Button(
+            text="To Cryptocurrency",
+            pos=(850, 540),
+            size_hint=(0.19, 0.10),
+            background_color="#00BFFF",
+            font_size=14,
+        )
+        self.mainbutton3.bind(on_release=self.dropdown3.open)
+        self.dropdown3.bind(
+            on_select=lambda instance, x: setattr(self.mainbutton3, "text", x)
+        )
+        self.window.add_widget(self.mainbutton3)
+
         self.dropdown2 = DropDown(dismiss_on_select=True)
         for items in self.codes:
             self.btn2 = Button(text=items, size_hint_y=None, height=44, font_size=13)
@@ -258,7 +415,7 @@ class TrustyConverto(App):
         self.mainbutton2 = Button(
             text="To Currency",
             pos=(643, 540),
-            size_hint=(0.38, 0.10),
+            size_hint=(0.19, 0.10),
             background_color="#00BFFF",
             font_size=14,
         )
@@ -270,7 +427,6 @@ class TrustyConverto(App):
 
         self.textinput1 = TextInput(
             halign="center",
-            padding_y=7,
             size_hint=(0.375, 0.07),
             pos=(23, 650),
             font_size=40,
@@ -340,6 +496,8 @@ class TrustyConverto(App):
 
 app = TrustyConverto()
 app.build()
+
+# print(actions.conversion.coins3)
 
 # RUN
 if __name__ == "__main__":
