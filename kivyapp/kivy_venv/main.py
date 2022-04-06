@@ -101,6 +101,11 @@ class Actions(MapView):
             app.marker1.lon = long_dict[self.marker1key]
             app.window.remove_widget(app.moon)
             app.window.add_widget(app.moon)
+        elif app.mainbutton3.text == " ":
+            app.greeting.text = "From " + self.marker1key + " TO " + self.marker2key
+            app.marker1.lat = lat_dict[self.marker1key]
+            app.marker1.lon = long_dict[self.marker1key]
+            app.window.remove_widget(app.moon)
         elif (
             app.mainbutton2.text == "To Currency"
             and app.mainbutton3.text == "To Cryptocurrency"
@@ -496,8 +501,6 @@ class TrustyConverto(App):
 
 app = TrustyConverto()
 app.build()
-
-# print(actions.conversion.coins3)
 
 # RUN
 if __name__ == "__main__":
